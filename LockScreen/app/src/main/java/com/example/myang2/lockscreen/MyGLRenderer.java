@@ -106,11 +106,20 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         if (fileName.equals("dino.dat")) {
-            //Matrix.orthoM(mProjectionMatrix, 0, -480f, 50f, 50, 480, 0, 640);
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 2, 7);
-            Matrix.scaleM(mProjectionMatrix, 0, 0.0025f, 0.0025f, 1.0f);
+            Matrix.frustumM(mProjectionMatrix, 0, -ratio*3, ratio/3, -0.3f, 1.5f, 2, 7);
+            Matrix.scaleM(mProjectionMatrix, 0, 0.004f, 0.004f, 1.0f);
+        }else if(fileName.equals("rex.dat")){
+            Matrix.frustumM(mProjectionMatrix, 0, -ratio*20, ratio/20, -0.0F, 14F, 3, 7);
+            Matrix.scaleM(mProjectionMatrix, 0, 20f, 20f, 1.0f);
+        } else if(fileName.equals("house.dat")){
+            Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1.0F, 1F, 3, 7);
+            Matrix.scaleM(mProjectionMatrix, 0, 0.5f, 0.5f, 1.0f);
+        } else if(fileName.equals("usa.dat")){
+            Matrix.frustumM(mProjectionMatrix, 0, -ratio*1.8f, ratio/2, -0.5F, 1.0F, 3, 7);
+            Matrix.scaleM(mProjectionMatrix, 0, 0.8f, 0.8f, 1.0f);
         } else {
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 2, 7);
+            Matrix.frustumM(mProjectionMatrix, 0, -ratio*2.5F, ratio/2.5F, -0.0f, 2f, 2, 7);
+            Matrix.scaleM(mProjectionMatrix, 0, 2f, 3f, 1.0f);
         }
         //Matrix.orthoM(mProjectionMatrix, 0, -0.75f, 0.75f, -1, 1, -1, 1);
     }

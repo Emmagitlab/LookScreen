@@ -136,6 +136,7 @@ public class Triangle {
             GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, size, size + points.get(i).size()/3-1);
             //size += points.get(i).size()/3;
         }
+        GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, vertexCount);
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);

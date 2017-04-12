@@ -1,12 +1,25 @@
 package com.example.myang2.lockscreen;
 
+import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Intent;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.myang2.lockscreen.LockScreenService;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
@@ -18,9 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
-
-
+public class MainActivity extends Activity {
     private GLSurfaceView mGLView;
     public String path = Environment.getExternalStorageDirectory().getPath() + "/assets";
     BufferedReader reader;
@@ -30,10 +41,24 @@ public class MainActivity extends AppCompatActivity {
     boolean isPolylines;
     int countOfPolylines;
     int[] countOfPoints;
-    int indexOfPoints ;
+    int indexOfPoints;
     int index;
     static String fileName;
     int size;
+    private Button button;
+    String[] fileNames = {
+            "birdhead.dat",
+            "dino.dat",
+            "dragon.dat",
+            "house.dat",
+            "knight.dat",
+            "rex.dat",
+            "scene.dat",
+            "usa.dat",
+            "vinci.dat"
+    };
+    int fileIndex;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -43,22 +68,42 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        RelativeLayout layoutMain = (RelativeLayout) findViewById(R.id.layout_main);
+        LinearLayout layout = (LinearLayout) findViewById(R.id.layout);
+        //LinearLayout layoutOfGL  = (LinearLayout) findViewById(R.id.layout).findViewById(R.id.layoutOfGl);
 
         mGLView = new MyGLSurfaceView(this);
-        setContentView(mGLView);
-        fileName = "birdhead.dat";
+        fileIndex = 0;
+        fileName = fileNames[8];
         readFile(fileName);
+        layout.addView(mGLView);
 
+        button = (Button) findViewById(R.id.button);
+        button.setText("asd");
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unlockScreen(v);
+            }
+        });
+        //layout.addView(button);
+
+        makeFullScreen();
+        startService(new Intent(this, LockScreenService.class));
         mGLView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
             public void onSwipeRight() {
-//                mGLView = new MyGLSurfaceView(getApplicationContext());
-//                setContentView(mGLView);
-//                fileName = "birdhead.dat";
-//                readFile(fileName);
-//                client = new GoogleApiClient.Builder(getApplicationContext()).addApi(AppIndex.API).build();
+                if(fileIndex == 8) fileIndex = 0;
+                else fileIndex += 1;
+                fileName = fileNames[fileIndex];
+                readFile(fileName);
                 Toast.makeText(MainActivity.this, "right", Toast.LENGTH_SHORT).show();
             }
             public void onSwipeLeft() {
+                if(fileIndex == 0) fileIndex = 8;
+                else fileIndex -= 1;
+                fileName = fileNames[fileIndex];
+                readFile(fileName);
                 Toast.makeText(MainActivity.this, "left", Toast.LENGTH_SHORT).show();
             }
         });
@@ -68,6 +113,31 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    /**
+     * A simple method that sets the screen to fullscreen.  It removes the Notifications bar,
+     *   the Actionbar and the virtual keys (if they are on the phone)
+     */
+    public void makeFullScreen() {
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if(Build.VERSION.SDK_INT < 19) { //View.SYSTEM_UI_FLAG_IMMERSIVE is only on API 19+
+            this.getWindow().getDecorView()
+                    .setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        } else {
+            this.getWindow().getDecorView()
+                    .setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
+    }
+
+    public void unlockScreen(View view) {
+        //Instead of using finish(), this totally destroys the process
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+    @Override
+    public void onBackPressed() {
+        return; //Do nothing!
+    }
 
     @Override
     protected void onPause() {
@@ -136,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
 
             do {
                 line = reader.readLine();
-                if(line == null) break;
+                if (line == null) break;
                 String[] lines = line.split("\\s+");
                 if (isPolylines) {
                     if (lines.length == 1) {
@@ -148,10 +218,10 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 }
-                if (index != 0 && lines.length > 1 && i < countOfPoints[index-1]) {
-                    points.get(index-1).add(Float.parseFloat(lines[lines.length-2]));
-                    points.get(index-1).add(Float.parseFloat(lines[lines.length-1]));
-                    points.get(index-1).add(0.0f);
+                if (index != 0 && lines.length > 1 && i < countOfPoints[index - 1]) {
+                    points.get(index - 1).add(Float.parseFloat(lines[lines.length - 2]));
+                    points.get(index - 1).add(Float.parseFloat(lines[lines.length - 1]));
+                    points.get(index - 1).add(0.0f);
                     i++;
 
                 }
@@ -172,15 +242,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void getCoord(){
+    public void getCoord() {
         int total = 0;
-        for(int i = 0; i < points.size();i++){
+        for (int i = 0; i < points.size(); i++) {
             total += points.get(i).size();
         }
         coord = new float[total];
         int indexOfCoor = 0;
-        for(int i = 0; i < points.size();i++){
-            for(int j = 0; j < points.get(i).size();j++){
+        for (int i = 0; i < points.size(); i++) {
+            for (int j = 0; j < points.get(i).size(); j++) {
                 coord[indexOfCoor++] = points.get(i).get(j);
             }
         }
