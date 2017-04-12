@@ -15,10 +15,15 @@
  */
 package com.example.myang2.lockscreen;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Bundle;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -34,10 +39,11 @@ import static com.example.myang2.lockscreen.MainActivity.fileName;
  *   <li>{@link android.opengl.GLSurfaceView.Renderer#onSurfaceChanged}</li>
  * </ul>
  */
-public class MyGLRenderer implements GLSurfaceView.Renderer {
+public class MyGLRenderer  implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
     private Triangle mTriangle;
+
    // private Square   mSquare;
 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
@@ -45,6 +51,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private float[] mProjectionMatrix = new float[16];
     private float[] mViewMatrix = new float[16];
     private float[] mRotationMatrix = new float[16];
+    private MainActivity mActivity;
+    private String fileName;
+    private float[] coor;
+    private ArrayList<ArrayList<Float>> points;
 
     private float mAngle;
 
@@ -55,7 +65,28 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         mTriangle = new Triangle();
+        mTriangle.setmActivity(mActivity);
+        mTriangle.setCoor(coor);
+        mTriangle.setPoints(points);
+
+
        // mSquare   = new Square();
+    }
+    public void setmActivity(MainActivity mActivity) {
+        this.mActivity = mActivity;
+
+    }
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+
+    }
+
+    public void setCoor(float[] coor) {
+        this.coor = coor;
+    }
+    public void setPoints(ArrayList<ArrayList<Float>> points) {
+        this.points = points;
+
     }
 
     @Override
@@ -102,6 +133,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         mProjectionMatrix = new float[16];
 
         float ratio = (float) width / height;
+
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method

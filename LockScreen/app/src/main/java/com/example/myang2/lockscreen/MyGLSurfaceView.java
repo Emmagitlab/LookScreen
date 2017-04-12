@@ -21,6 +21,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.ArrayList;
+
 import static com.example.myang2.lockscreen.R.id.button;
 
 /**
@@ -32,7 +34,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private final MyGLRenderer mRenderer;
     private Button button;
-
+    private MainActivity mActivity;
+    private String fileName;
+    private float[] coor;
+    ArrayList<ArrayList<Float>> points;
     public MyGLSurfaceView(Context context) {
         super(context);
 
@@ -55,6 +60,27 @@ public class MyGLSurfaceView extends GLSurfaceView {
 //            }
 //        });
     }
+
+    public void setmActivity(MainActivity mActivity) {
+        this.mActivity = mActivity;
+        mRenderer.setmActivity(mActivity);
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+        mRenderer.setFileName(fileName);
+    }
+
+    public void setCoor(float[] coor) {
+        this.coor = coor;
+        mRenderer.setCoor(coor);
+    }
+    public void setPoints(ArrayList<ArrayList<Float>> points) {
+        this.points = points;
+        mRenderer.setPoints(points);
+    }
+
+
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
     private float mPreviousX;

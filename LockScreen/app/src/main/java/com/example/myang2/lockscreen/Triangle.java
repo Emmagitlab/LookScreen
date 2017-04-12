@@ -15,6 +15,7 @@
  */
 package com.example.myang2.lockscreen;
 
+import android.app.Activity;
 import android.opengl.GLES20;
 
 import java.nio.ByteBuffer;
@@ -46,26 +47,37 @@ public class Triangle {
                     "  gl_FragColor = vColor;" +
                     "}";
 
-    private final FloatBuffer vertexBuffer;
-    private final int mProgram;
+    private  FloatBuffer vertexBuffer;
+    private  int mProgram;
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
+    private MainActivity mActivity;
 
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
-    static ArrayList<ArrayList<Float>> points = MainActivity.points;
-    static float triangleCoords[] = MainActivity.coord;
-    private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
+    private ArrayList<ArrayList<Float>> points;
+    float triangleCoords[];
+    private  int vertexCount ;
+    private  int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
     float color[] = { 0.63671875f, 0.76953125f, 0.22265625f, 0.0f };
 
     /**
      * Sets up the drawing object data for use in an OpenGL ES context.
      */
+
+
     public Triangle() {
         // initialize vertex byte buffer for shape coordinates
+
+
+    }
+
+
+    public void setCoor(float coor[]){
+        triangleCoords = coor;
+        vertexCount = triangleCoords.length / COORDS_PER_VERTEX;
         ByteBuffer bb = ByteBuffer.allocateDirect(
                 // (number of coordinate values * 4 bytes per float)
                 triangleCoords.length * 4);
@@ -89,9 +101,17 @@ public class Triangle {
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
+    }
+
+    public void setmActivity(MainActivity mActivity) {
+        this.mActivity = mActivity;
 
     }
 
+    public void setPoints(ArrayList<ArrayList<Float>> points) {
+        this.points = points;
+
+    }
 
 
     /**
@@ -132,10 +152,10 @@ public class Triangle {
         MyGLRenderer.checkGlError("glUniformMatrix4fv");
 
         // Draw the triangle
-        for(int i = 0; i < points.size();i++) {
-            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, size, size + points.get(i).size()/3-1);
-            //size += points.get(i).size()/3;
-        }
+//        for(int i = 0; i < points.size();i++) {
+//            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, size, size + points.get(i).size()/3-1);
+//            size += points.get(i).size()/3;
+//        }
         GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, vertexCount);
 
         // Disable vertex array

@@ -32,12 +32,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
-    private GLSurfaceView mGLView;
+    private MyGLSurfaceView mGLView;
     public String path = Environment.getExternalStorageDirectory().getPath() + "/assets";
     BufferedReader reader;
     String line;
-    static float[] coord;
-    static ArrayList<ArrayList<Float>> points;
+    float[] coord;
+    private ArrayList<ArrayList<Float>> points;
     boolean isPolylines;
     int countOfPolylines;
     int[] countOfPoints;
@@ -74,13 +74,20 @@ public class MainActivity extends Activity {
         //LinearLayout layoutOfGL  = (LinearLayout) findViewById(R.id.layout).findViewById(R.id.layoutOfGl);
 
         mGLView = new MyGLSurfaceView(this);
+        mGLView.setmActivity(this);
+
         fileIndex = 0;
-        fileName = fileNames[8];
+        fileName = fileNames[fileIndex];
         readFile(fileName);
         layout.addView(mGLView);
 
+
+        mGLView.setFileName(fileName);
+        mGLView.setCoor(coord);
+        mGLView.setPoints(points);
+
         button = (Button) findViewById(R.id.button);
-        button.setText("asd");
+        button.setText("UnLock");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,6 +95,7 @@ public class MainActivity extends Activity {
             }
         });
         //layout.addView(button);
+
 
         makeFullScreen();
         startService(new Intent(this, LockScreenService.class));
@@ -97,6 +105,9 @@ public class MainActivity extends Activity {
                 else fileIndex += 1;
                 fileName = fileNames[fileIndex];
                 readFile(fileName);
+                mGLView.setFileName(fileName);
+                mGLView.setCoor(coord);
+                mGLView.setPoints(points);
                 Toast.makeText(MainActivity.this, "right", Toast.LENGTH_SHORT).show();
             }
             public void onSwipeLeft() {
@@ -104,6 +115,9 @@ public class MainActivity extends Activity {
                 else fileIndex -= 1;
                 fileName = fileNames[fileIndex];
                 readFile(fileName);
+                mGLView.setFileName(fileName);
+                mGLView.setCoor(coord);
+                mGLView.setPoints(points);
                 Toast.makeText(MainActivity.this, "left", Toast.LENGTH_SHORT).show();
             }
         });
