@@ -17,7 +17,6 @@ package com.example.myang2.lockscreen;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -66,17 +65,17 @@ public class MyGLSurfaceView extends GLSurfaceView {
         mRenderer.setmActivity(mActivity);
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFileName(String[] fileName) {
+        //this.fileName = fileName;
         mRenderer.setFileName(fileName);
     }
 
-    public void setCoor(float[] coor) {
-        this.coor = coor;
+    public void setCoor(float[][] coor) {
+        //this.coor = coor;
         mRenderer.setCoor(coor);
     }
-    public void setPoints(ArrayList<ArrayList<Float>> points) {
-        this.points = points;
+    public void setPoints(ArrayList<ArrayList<ArrayList<Float>>> points) {
+        //this.points = points;
         mRenderer.setPoints(points);
     }
 

@@ -36,14 +36,15 @@ public class MainActivity extends Activity {
     public String path = Environment.getExternalStorageDirectory().getPath() + "/assets";
     BufferedReader reader;
     String line;
-    float[] coord;
-    private ArrayList<ArrayList<Float>> points;
+    float[][] coord;
+    private ArrayList<ArrayList<Float>> point;
+    private ArrayList<ArrayList<ArrayList<Float>>> points;
     boolean isPolylines;
     int countOfPolylines;
     int[] countOfPoints;
     int indexOfPoints;
     int index;
-    static String fileName;
+    static String[] fileName;
     int size;
     private Button button;
     String[] fileNames = {
@@ -76,13 +77,12 @@ public class MainActivity extends Activity {
         mGLView = new MyGLSurfaceView(this);
         mGLView.setmActivity(this);
 
-        fileIndex = 0;
-        fileName = fileNames[fileIndex];
-        readFile(fileName);
+        //fileIndex = 1;
+        //fileName[fileIndex] = fileNames[fileIndex];
+        readFile(fileNames);
         layout.addView(mGLView);
 
-
-        mGLView.setFileName(fileName);
+        mGLView.setFileName(fileNames);
         mGLView.setCoor(coord);
         mGLView.setPoints(points);
 
@@ -99,28 +99,28 @@ public class MainActivity extends Activity {
 
         makeFullScreen();
         startService(new Intent(this, LockScreenService.class));
-        mGLView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
-            public void onSwipeRight() {
-                if(fileIndex == 8) fileIndex = 0;
-                else fileIndex += 1;
-                fileName = fileNames[fileIndex];
-                readFile(fileName);
-                mGLView.setFileName(fileName);
-                mGLView.setCoor(coord);
-                mGLView.setPoints(points);
-                Toast.makeText(MainActivity.this, "right", Toast.LENGTH_SHORT).show();
-            }
-            public void onSwipeLeft() {
-                if(fileIndex == 0) fileIndex = 8;
-                else fileIndex -= 1;
-                fileName = fileNames[fileIndex];
-                readFile(fileName);
-                mGLView.setFileName(fileName);
-                mGLView.setCoor(coord);
-                mGLView.setPoints(points);
-                Toast.makeText(MainActivity.this, "left", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        mGLView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
+//            public void onSwipeRight() {
+//                if(fileIndex == 8) fileIndex = 0;
+//                else fileIndex += 1;
+//                fileName = fileNames[fileIndex];
+//                readFile(fileName);
+//                mGLView.setFileName(fileName);
+//                mGLView.setCoor(coord);
+//                mGLView.setPoints(points);
+//                Toast.makeText(MainActivity.this, "right", Toast.LENGTH_SHORT).show();
+//            }
+//            public void onSwipeLeft() {
+//                if(fileIndex == 0) fileIndex = 8;
+//                else fileIndex -= 1;
+//                fileName = fileNames[fileIndex];
+//                readFile(fileName);
+//                mGLView.setFileName(fileName);
+//                mGLView.setCoor(coord);
+//                mGLView.setPoints(points);
+//                Toast.makeText(MainActivity.this, "left", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -208,66 +208,70 @@ public class MainActivity extends Activity {
         client.disconnect();
     }
 
-    public void readFile(String fileName) {
+    public void readFile(String[] fileName) {
+        points = new ArrayList<>();
+        coord = new float[9][];
+        for (int j = 0; j < 9; j++) {
+            try {
+                InputStream in = getAssets().open(fileName[j]);
+                reader = new BufferedReader(new InputStreamReader(in));
+                int i = 0;
+                countOfPolylines = 0;
+                indexOfPoints = 0;
+                index = 0;
 
-        try {
-            InputStream in = getAssets().open(fileName);
-            reader = new BufferedReader(new InputStreamReader(in));
-            int i = 0;
-            countOfPolylines = 0;
-            indexOfPoints = 0;
-            index = 0;
+                do {
+                    line = reader.readLine();
+                    if (line == null) break;
+                    String[] lines = line.split("\\s+");
+                    if (isPolylines) {
+                        if (lines.length == 1) {
+                            countOfPoints[index] = Integer.parseInt(lines[0]);
+                            ArrayList<Float> list = new ArrayList<>();
+                            point.add(list);
+                            index++;
+                            i = 0;
 
-            do {
-                line = reader.readLine();
-                if (line == null) break;
-                String[] lines = line.split("\\s+");
-                if (isPolylines) {
-                    if (lines.length == 1) {
-                        countOfPoints[index] = Integer.parseInt(lines[0]);
-                        ArrayList<Float> list = new ArrayList<>();
-                        points.add(list);
-                        index++;
-                        i = 0;
+                        }
+                    }
+                    if (index != 0 && lines.length > 1 && i < countOfPoints[index - 1]) {
+                        point.get(index - 1).add(Float.parseFloat(lines[lines.length - 2]));
+                        point.get(index - 1).add(Float.parseFloat(lines[lines.length - 1]));
+                        point.get(index - 1).add(0.0f);
+                        i++;
 
                     }
-                }
-                if (index != 0 && lines.length > 1 && i < countOfPoints[index - 1]) {
-                    points.get(index - 1).add(Float.parseFloat(lines[lines.length - 2]));
-                    points.get(index - 1).add(Float.parseFloat(lines[lines.length - 1]));
-                    points.get(index - 1).add(0.0f);
-                    i++;
+                    if (lines.length == 1 && !isPolylines) {
+                        isPolylines = true;
+                        countOfPolylines = Integer.parseInt(lines[0]);
+                        countOfPoints = new int[countOfPolylines];
+                        point = new ArrayList<>();
+                    }
+                    // do something with the line
+                } while (line != null);
 
-                }
-                if (lines.length == 1 && !isPolylines) {
-                    isPolylines = true;
-                    countOfPolylines = Integer.parseInt(lines[0]);
-                    countOfPoints = new int[countOfPolylines];
-                    points = new ArrayList<>();
-                }
-                // do something with the line
-            } while (line != null);
+                in.close();
+                getCoord(j);
+                points.add(point);
+                isPolylines = false;
 
-            in.close();
-            getCoord();
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
-    public void getCoord() {
+    public void getCoord(int k) {
         int total = 0;
-        for (int i = 0; i < points.size(); i++) {
-            total += points.get(i).size();
+        for (int i = 0; i < point.size(); i++) {
+            total += point.get(i).size();
         }
-        coord = new float[total];
+        coord[k] = new float[total];
         int indexOfCoor = 0;
-        for (int i = 0; i < points.size(); i++) {
-            for (int j = 0; j < points.get(i).size(); j++) {
-                coord[indexOfCoor++] = points.get(i).get(j);
+        for (int i = 0; i < point.size(); i++) {
+            for (int j = 0; j < point.get(i).size(); j++) {
+                coord[k][indexOfCoor++] = point.get(i).get(j);
             }
         }
-
     }
 }

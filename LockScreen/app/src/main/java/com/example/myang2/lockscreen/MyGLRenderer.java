@@ -47,14 +47,14 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
    // private Square   mSquare;
 
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
-    private float[] mMVPMatrix = new float[16];
-    private float[] mProjectionMatrix = new float[16];
+    private float[][] mMVPMatrix = new float[9][16];
+    private float[][] mProjectionMatrix = new float[9][16];
     private float[] mViewMatrix = new float[16];
     private float[] mRotationMatrix = new float[16];
     private MainActivity mActivity;
-    private String fileName;
-    private float[] coor;
-    private ArrayList<ArrayList<Float>> points;
+    private String[] fileName = new String[9];
+    private float[][] coor = new float[9][];
+    private ArrayList<ArrayList<ArrayList<Float>>> points = new ArrayList<>();
 
     private float mAngle;
 
@@ -66,8 +66,6 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
 
         mTriangle = new Triangle();
         mTriangle.setmActivity(mActivity);
-        mTriangle.setCoor(coor);
-        mTriangle.setPoints(points);
 
 
        // mSquare   = new Square();
@@ -76,22 +74,26 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
         this.mActivity = mActivity;
 
     }
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-
+    public void setFileName(String[] fileName) {
+        for (int i = 0; i < 9; i++) {
+            this.fileName[i] = fileName[i];
+        }
     }
 
-    public void setCoor(float[] coor) {
-        this.coor = coor;
+    public void setCoor(float[][] coor) {
+        for (int i = 0; i < 9; i++) {
+            this.coor[i] = coor[i];
+        }
     }
-    public void setPoints(ArrayList<ArrayList<Float>> points) {
-        this.points = points;
-
+    public void setPoints(ArrayList<ArrayList<ArrayList<Float>>> points) {
+        for (int i = 0; i < 9; i++) {
+            this.points.add(points.get(i));
+        }
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
-        float[] scratch = new float[16];
+        float[][] scratch = new float[9][16];
 
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -102,7 +104,8 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
 
         //Matrix.orthoM(mProjectionMatrix, 0, -1.3f, 1.3f, -1, 1, -1, 1);
         // Calculate the projection and view transformation
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        //Matrix.multiplyMM(mMVPMatrix[1], 0, mProjectionMatrix[1], 0, mViewMatrix, 0);
+
         // Draw square
       //  mSquare.draw(mMVPMatrix);
 
@@ -113,16 +116,22 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
         // long time = SystemClock.uptimeMillis() % 4000L;
         // float angle = 0.090f * ((int) time);
 
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
+        //Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
 
         // Combine the rotation matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
-        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        //Matrix.multiplyMM(scratch[0], 0, mMVPMatrix, 0, mRotationMatrix, 0);
 
         // Draw triangle
 
-        mTriangle.draw(scratch);
+        for (int i = 0; i < 9; i++) {
+            Matrix.multiplyMM(mMVPMatrix[i], 0, mProjectionMatrix[i], 0, mViewMatrix, 0);
+            mTriangle.setCoor(coor[i]);
+            mTriangle.setPoints(points.get(i));
+            mTriangle.draw(mMVPMatrix[i]);
+        }
+        //mTriangle.draw(mMVPMatrix[0]);
     }
 
     @Override
@@ -130,30 +139,46 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
         // Adjust the viewport based on geometry changes,
         // such as screen rotation
         GLES20.glViewport(0, 0, width, height);
-        mProjectionMatrix = new float[16];
+        mProjectionMatrix = new float[9][16];
 
         float ratio = (float) width / height;
 
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        if (fileName.equals("dino.dat")) {
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio*3, ratio/3, -0.3f, 1.5f, 2, 7);
-            Matrix.scaleM(mProjectionMatrix, 0, 0.004f, 0.004f, 1.0f);
-        }else if(fileName.equals("rex.dat")){
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio*20, ratio/20, -0.0F, 14F, 3, 7);
-            Matrix.scaleM(mProjectionMatrix, 0, 20f, 20f, 1.0f);
-        } else if(fileName.equals("house.dat")){
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1.0F, 1F, 3, 7);
-            Matrix.scaleM(mProjectionMatrix, 0, 0.5f, 0.5f, 1.0f);
-        } else if(fileName.equals("usa.dat")){
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio*1.8f, ratio/2, -0.5F, 1.0F, 3, 7);
-            Matrix.scaleM(mProjectionMatrix, 0, 0.8f, 0.8f, 1.0f);
-        } else {
-            Matrix.frustumM(mProjectionMatrix, 0, -ratio*2.5F, ratio/2.5F, -0.0f, 2f, 2, 7);
-            Matrix.scaleM(mProjectionMatrix, 0, 2f, 3f, 1.0f);
-        }
-        //Matrix.orthoM(mProjectionMatrix, 0, -0.75f, 0.75f, -1, 1, -1, 1);
+        //birdhead.dat
+        Matrix.frustumM(mProjectionMatrix[0], 0, -ratio*1.1F, ratio/0.8F, -3.0f, 0.8f, 2, 7);
+
+        //(fileName[1].equals("dino.dat")) {
+        Matrix.frustumM(mProjectionMatrix[1], 0, -ratio*8, ratio/1.8F, -6.3f, 1.4f, 2, 7);
+        Matrix.scaleM(mProjectionMatrix[1], 0, 0.004f, 0.004f, 1.0f);
+
+        //dragon.dat
+        Matrix.frustumM(mProjectionMatrix[2], 0, -ratio*1.3F, ratio/0.6F, -3.0f, 2.0f, 2, 7);
+
+        //} else if(fileName.equals("house.dat")){
+        Matrix.frustumM(mProjectionMatrix[3], 0, -ratio*2F, ratio/1.5F, -1.4F, 0.8F, 3, 7);
+        Matrix.scaleM(mProjectionMatrix[3], 0, 0.3f, 0.3f, 1.0f);
+
+        //} else if(fileName.equals("knight.dat")){
+        Matrix.frustumM(mProjectionMatrix[4], 0, -ratio*0.9F, ratio, -0.6F, 1.6F, 3, 7);
+        Matrix.scaleM(mProjectionMatrix[4], 0, 0.5f, 0.5f, 1.0f);
+
+        //fileName.equals("rex.dat")){
+        Matrix.frustumM(mProjectionMatrix[5], 0, -ratio*50, ratio/10, -7.6F, 31F, 3, 7);
+        Matrix.scaleM(mProjectionMatrix[5], 0, 20f, 20f, 1.0f);
+
+        //fileName.equals("scene.dat")){
+        Matrix.frustumM(mProjectionMatrix[6], 0, -ratio*1.9f, ratio/0.4f, -0.2F, 5F, 3, 7);
+//        Matrix.scaleM(mProjectionMatrix[6], 0, 20f, 20f, 1.0f);
+
+        //} else if(fileName.equals("usa.dat")){
+        Matrix.frustumM(mProjectionMatrix[7], 0, -ratio*5.1f, ratio/1.1f, -0.5F, 6F, 3, 7);
+        Matrix.scaleM(mProjectionMatrix[7], 0, 0.8f, 0.8f, 1.0f);
+//
+//        //fileName.equals("vinci.dat")){
+//        Matrix.frustumM(mProjectionMatrix[8], 0, -ratio*20, ratio/20, -0.0F, 14F, 3, 7);
+//        Matrix.scaleM(mProjectionMatrix[8], 0, 20f, 20f, 1.0f);
     }
 
     /**
