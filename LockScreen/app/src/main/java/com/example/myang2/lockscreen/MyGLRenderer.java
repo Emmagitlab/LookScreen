@@ -54,6 +54,7 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
     private MainActivity mActivity;
     private String[] fileName = new String[9];
     private float[][] coor = new float[9][];
+    private int[][] countOfPoints = new int[9][];
     private ArrayList<ArrayList<ArrayList<Float>>> points = new ArrayList<>();
 
     private float mAngle;
@@ -88,6 +89,12 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
     public void setPoints(ArrayList<ArrayList<ArrayList<Float>>> points) {
         for (int i = 0; i < 9; i++) {
             this.points.add(points.get(i));
+        }
+    }
+
+    public void setCountOfPoints(int[][] countOfPoints) {
+        for (int i = 0; i < 9; i++) {
+            this.countOfPoints[i] = countOfPoints[i];
         }
     }
 
@@ -129,6 +136,7 @@ public class MyGLRenderer  implements GLSurfaceView.Renderer {
             Matrix.multiplyMM(mMVPMatrix[i], 0, mProjectionMatrix[i], 0, mViewMatrix, 0);
             mTriangle.setCoor(coor[i]);
             mTriangle.setPoints(points.get(i));
+            mTriangle.setCountOfPoints(countOfPoints[i]);
             mTriangle.draw(mMVPMatrix[i]);
         }
         //mTriangle.draw(mMVPMatrix[0]);

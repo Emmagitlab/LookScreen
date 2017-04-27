@@ -57,6 +57,7 @@ public class Triangle {
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
     private ArrayList<ArrayList<Float>> points;
+    private int[] countOfPoints;
     float triangleCoords[];
     private  int vertexCount ;
     private  int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
@@ -113,6 +114,9 @@ public class Triangle {
 
     }
 
+    public void setCountOfPoints(int[] countOfPoints) {
+        this.countOfPoints = countOfPoints;
+    }
 
     /**
      * Encapsulates the OpenGL ES instructions for drawing this shape.
@@ -156,7 +160,11 @@ public class Triangle {
 //            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, size, size + points.get(i).size()/3-1);
 //            size += points.get(i).size()/3;
 //        }
-        GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, vertexCount);
+        int position = 0;
+        for (int i = 0; i < countOfPoints.length; i++) {
+            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, position, countOfPoints[i]);
+            position += countOfPoints[i];
+        }
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);

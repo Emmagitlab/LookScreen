@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
     private ArrayList<ArrayList<ArrayList<Float>>> points;
     boolean isPolylines;
     int countOfPolylines;
-    int[] countOfPoints;
+    int[][] countOfPoints;
     int indexOfPoints;
     int index;
     static String[] fileName;
@@ -85,6 +85,7 @@ public class MainActivity extends Activity {
         mGLView.setFileName(fileNames);
         mGLView.setCoor(coord);
         mGLView.setPoints(points);
+        mGLView.setCountOfPoints(countOfPoints);
 
         button = (Button) findViewById(R.id.button);
         button.setText("UnLock");
@@ -211,6 +212,7 @@ public class MainActivity extends Activity {
     public void readFile(String[] fileName) {
         points = new ArrayList<>();
         coord = new float[9][];
+        countOfPoints = new int[9][];
         for (int j = 0; j < 9; j++) {
             try {
                 InputStream in = getAssets().open(fileName[j]);
@@ -226,7 +228,7 @@ public class MainActivity extends Activity {
                     String[] lines = line.split("\\s+");
                     if (isPolylines) {
                         if (lines.length == 1) {
-                            countOfPoints[index] = Integer.parseInt(lines[0]);
+                            countOfPoints[j][index] = Integer.parseInt(lines[0]);
                             ArrayList<Float> list = new ArrayList<>();
                             point.add(list);
                             index++;
@@ -234,7 +236,7 @@ public class MainActivity extends Activity {
 
                         }
                     }
-                    if (index != 0 && lines.length > 1 && i < countOfPoints[index - 1]) {
+                    if (index != 0 && lines.length > 1 && i < countOfPoints[j][index - 1]) {
                         point.get(index - 1).add(Float.parseFloat(lines[lines.length - 2]));
                         point.get(index - 1).add(Float.parseFloat(lines[lines.length - 1]));
                         point.get(index - 1).add(0.0f);
@@ -244,7 +246,7 @@ public class MainActivity extends Activity {
                     if (lines.length == 1 && !isPolylines) {
                         isPolylines = true;
                         countOfPolylines = Integer.parseInt(lines[0]);
-                        countOfPoints = new int[countOfPolylines];
+                        countOfPoints[j] = new int[countOfPolylines];
                         point = new ArrayList<>();
                     }
                     // do something with the line
